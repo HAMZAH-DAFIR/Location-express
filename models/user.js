@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { v1:uuidv1 } = require('uuid');
+const crypto = require('crypto');
 
 const userScheme = new mongoose.Schema({
     firstName : {
@@ -38,4 +40,30 @@ const userScheme = new mongoose.Schema({
     }
     
 },{timestamps:true})
+
+userScheme.virtual(password)
+          .set((password) => {
+              this._password = password;
+              this.salt = uuidv1();
+              this.hashes_password = this.cryptPassword(password);
+          })
+          .get(() => {return password})  ;
+
+userScheme.methods = {
+
+    cryptPassword = function (password) {
+        if (!password) {
+            return '';
+        }
+        try {
+           return crypto.createHmac('sha1', salt)
+                  .update(password) 
+                  .digest('hex') 
+        }
+        catch {
+            return '';
+        }
+    }
+}  
+
 module.exports = mongoose.model('User', userScheme);
