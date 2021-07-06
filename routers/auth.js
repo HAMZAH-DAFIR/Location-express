@@ -4,7 +4,9 @@ const router = express.Router();
 //----> userController
 const { singUp } = require('../controllers/authController');
 
-router.post('/register', singUp);
+//---->Middlewares 
+const { validator, userValidator } = require('../middlewares/auth');
+router.post('/register',validator,  userValidator, singUp);
 router.get('/', () => {return 'hello'});
 
 module.exports = router;
